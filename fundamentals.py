@@ -22,11 +22,11 @@ class FundamentalAgent:
             stock = yf.Ticker(ns_symbol)
             info = stock.info
             
-            # 2. Extract Data (Safely handle missing keys)
-            market_cap = info.get("marketCap", 0)
-            pe_ratio = info.get("trailingPE", 0)
-            roe = info.get("returnOnEquity", 0)
-            debt_to_equity = info.get("debtToEquity", 0)
+            # 2. Extract Data (Safely handle missing keys and None values)
+            market_cap = info.get("marketCap") or 0
+            pe_ratio = info.get("trailingPE") or 0
+            roe = info.get("returnOnEquity") or 0
+            debt_to_equity = info.get("debtToEquity") or 0
             sector = info.get("sector", "Unknown")
             industry = info.get("industry", "Unknown")
             website = info.get("website", "#")
@@ -59,6 +59,6 @@ class FundamentalAgent:
     @staticmethod
     def get_peer_comparison(symbol):
         """
-        Fetches a quick comparison if available (Mock logic for now as Free APIs don't give peer data easily).
+        Fetches a quick comparison if available.
         """
         return "Peer comparison requires a paid data subscription."

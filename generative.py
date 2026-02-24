@@ -27,8 +27,7 @@ class StressTestLab:
     @staticmethod
     def run_simulation(portfolio_value, scenario_key):
         scenario = StressTestLab.SCENARIOS.get(scenario_key)
-        if not scenario:
-            return None
+        if not scenario: return None
         
         drop_pct = scenario['drop']
         simulated_value = portfolio_value * (1 + drop_pct)
@@ -44,12 +43,9 @@ class StressTestLab:
         }
 
 # ==========================================
-# 2. GENERATIVE AI CO-PILOT 🤖 (UPDATED)
+# 2. GENERATIVE AI CO-PILOT 🤖
 # ==========================================
 class AICoPilot:
-    """
-    Uses Groq (free tier) to generate financial insights and RECOMMENDATIONS.
-    """
     def __init__(self):
         self.api_key = os.getenv("GROQ_API_KEY")
         self.client = None
@@ -57,12 +53,10 @@ class AICoPilot:
             self.client = Groq(api_key=self.api_key)
 
     def generate_insight(self, portfolio_data, user_question=None):
-        """Critiques existing portfolio."""
         if not self.client:
             return "⚠️ AI Error: Please add GROQ_API_KEY to .env to enable the Co-Pilot."
 
         holdings_str = ", ".join([f"{item['Symbol']} ({item['Qty']} qty)" for item in portfolio_data])
-        
         system_prompt = "You are a ruthless hedge fund manager AI. Be concise, direct, and slightly cynical."
         
         if user_question:
@@ -76,24 +70,18 @@ class AICoPilot:
             return f"⚠️ AI Error: {str(e)}"
 
     def recommend_new_stocks(self, portfolio_data):
-        """
-        Suggests NEW stocks to buy based on gaps in the current portfolio.
-        """
         if not self.client:
             return "⚠️ AI Error: Please add GROQ_API_KEY to .env."
 
         holdings_str = ", ".join([f"{item['Symbol']}" for item in portfolio_data])
-        
         system_prompt = "You are an expert Indian Stock Market Advisor. Your goal is to suggest diversification."
         
         user_content = f"""
         Current Portfolio: {holdings_str}
-        
         Task:
         1. Identify the sectors currently represented.
         2. Suggest 2 NEW stocks (NSE Tickers) from DIFFERENT sectors to improve diversification.
-        3. For each suggestion, explain clearly WHY it makes the portfolio better (e.g., "reduces volatility", "adds growth").
-        
+        3. For each suggestion, explain clearly WHY it makes the portfolio better.
         Format:
         * **[Stock Symbol]**: [Reason]
         * **[Stock Symbol]**: [Reason]
@@ -110,7 +98,6 @@ class AICoPilot:
                 {"role": "system", "content": sys_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            # UPDATED MODEL NAME HERE 👇
             model="llama-3.3-70b-versatile", 
         )
         return completion.choices[0].message.content
@@ -121,8 +108,11 @@ class AICoPilot:
 class AlgoBattle:
     @staticmethod
     def run_battle(df, initial_capital=100000):
+        # FIX: Return empty go.Figure() instead of None to prevent Streamlit crash
         if df.empty or len(df) < 55:
-            return None, "Not enough data", 0, 0
+            fig = go.Figure()
+            fig.update_layout(title="Not enough data to run Algo Battle.")
+            return fig, "N/A", 0, 0
 
         df = df.copy()
         start_price = df['Close'].iloc[0]
